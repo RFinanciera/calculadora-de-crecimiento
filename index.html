@@ -330,6 +330,13 @@
 
         /* ===== CALCULADORA DE INVERSIÓN ===== */
         .sim-controls[hidden], .sliders[hidden], .bridge[hidden] { display: none; }
+        .sim-input-group input.money {
+            width: 100%; min-width: 0; padding: 12px 16px; border: 1.5px solid var(--border);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-family: 'DM Sans', sans-serif; font-size: 16px;
+            color: var(--text-primary); background: var(--bg-primary); transition: border-color 0.2s; outline: none;
+        }
+        .sim-input-group input.money:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(230, 59, 46, 0.1); }
+        .real-note { font-size: 13px; color: var(--text-secondary); background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 8px 12px; margin: -6px 0 18px; display: inline-block; }
         .esc-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
         .esc { position: relative; display: block; cursor: pointer; }
         .esc input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; cursor: pointer; margin: 0; }
@@ -483,17 +490,17 @@
         <div class="sim-controls">
             <div class="sim-input-group">
                 <label class="lbl" for="ci">Capital inicial</label>
-                <div class="input-row"><span class="pre">US$</span><input id="ci" type="number" min="0" step="any" inputmode="decimal"></div>
+                <div class="input-row"><span class="pre">US$</span><input id="ci" class="money" type="text" inputmode="numeric" autocomplete="off"></div>
                 <p class="echo" id="e-ci"></p>
             </div>
             <div class="sim-input-group" id="f-am">
                 <label class="lbl" for="am">Aporte mensual</label>
-                <div class="input-row"><span class="pre">US$</span><input id="am" type="number" min="0" step="any" inputmode="decimal"></div>
+                <div class="input-row"><span class="pre">US$</span><input id="am" class="money" type="text" inputmode="numeric" autocomplete="off"></div>
                 <p class="echo" id="e-am"></p>
             </div>
             <div class="sim-input-group" id="f-meta" hidden>
                 <label class="lbl" for="meta">Tu meta</label>
-                <div class="input-row"><span class="pre">US$</span><input id="meta" type="number" min="0" step="any" inputmode="decimal"></div>
+                <div class="input-row"><span class="pre">US$</span><input id="meta" class="money" type="text" inputmode="numeric" autocomplete="off"></div>
                 <p class="echo" id="e-meta"></p>
             </div>
             <div class="sim-input-group">
@@ -501,12 +508,17 @@
                 <div class="input-row"><input id="y" type="number" min="1" max="50" step="1" inputmode="numeric"><span class="suf">años</span></div>
                 <p class="echo">Entre 1 y 50 años</p>
             </div>
+            <div class="sim-input-group">
+                <label class="lbl" for="age">Tu edad <span style="font-weight:400;color:var(--text-muted)">(opcional)</span></label>
+                <div class="input-row"><input id="age" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="Ej: 30"><span class="suf">años</span></div>
+                <p class="echo" id="e-age">Para ver los resultados según tu edad</p>
+            </div>
         </div>
 
         <div class="sim-controls">
             <div class="sim-input-group">
                 <label class="lbl" for="ex">Aporte extraordinario, una vez por año</label>
-                <div class="input-row"><span class="pre">US$</span><input id="ex" type="number" min="0" step="any" inputmode="decimal"></div>
+                <div class="input-row"><span class="pre">US$</span><input id="ex" class="money" type="text" inputmode="numeric" autocomplete="off"></div>
                 <p class="echo">Por ejemplo, parte del aguinaldo o un bono. Poné 0 si no aplica.</p>
             </div>
             <div class="sim-input-group">
@@ -537,6 +549,10 @@
     <div class="sim-card animate-in" aria-live="polite">
         <div class="sim-header">
             <div class="sim-title">📊 Resultado</div>
+            <div class="mode-toggle" role="radiogroup" aria-label="Cómo ver los montos">
+                <label><input type="radio" name="val" value="nom" checked><span class="mode-btn">Valores futuros</span></label>
+                <label><input type="radio" name="val" value="real"><span class="mode-btn">En dólares de hoy</span></label>
+            </div>
         </div>
         <div id="result"></div>
     </div>
@@ -614,14 +630,15 @@
             <p><b>El costo de esperar.</b> Compara con alguien que arranca los mismos aportes (y el mismo capital inicial) varios años más tarde, pero termina en la misma fecha. Durante la espera, el capital inicial no rinde nada.</p>
             <p><b>Escenarios.</b> FCI en dólares (5,5%) y Obligaciones Negociables (7%) son tasas de referencia de mercado. Las dos opciones del S&amp;P 500 son el rendimiento anual compuesto del índice con dividendos reinvertidos, en dólares y antes de impuestos: 8,8% para 2001–2025 (25 años, incluye la crisis de las puntocom y la de 2008) y 14,1% para 2011–2025 (15 años, un período excepcionalmente bueno para las acciones de EE.UU.). Rendimientos pasados no garantizan rendimientos futuros.</p>
             <p><b>Puente a Vivir de Rentas.</b> Aplica la regla del 4%: retirar por año el 4% del capital acumulado. Surge de datos históricos de EE.UU. (Bengen, 1994) para retiros de unos 30 años.</p>
-            <p><b>Limitaciones.</b> Los montos son nominales en dólares: no descuentan la inflación de EE.UU., que en el largo plazo ronda el 2–3% anual. Tampoco incluye impuestos, comisiones ni la variación de los rendimientos año a año.</p>
+            <p><b>Dólares de hoy.</b> Por defecto, los montos son valores futuros: los dólares que vas a tener ese año. Pero el dólar también pierde valor con la inflación de EE.UU., que en el largo plazo ronda el 2–3% anual. Con la opción "En dólares de hoy", cada monto se divide por (1 + 2,5%) elevado a la cantidad de años, para mostrar lo que podrías comprar con esa plata hoy. En el modo meta, tu meta se toma en dólares de hoy.</p>
+            <p><b>Limitaciones.</b> No incluye impuestos, comisiones ni la variación de los rendimientos año a año.</p>
         </div>
     </details>
 
     <!-- Disclaimer -->
     <div class="disclaimer">
         <h4>⚠️ Aviso Legal</h4>
-        <p>Este simulador es una herramienta educativa y de carácter informativo. No constituye una recomendación de inversión ni asesoramiento financiero personalizado. Los resultados dependen exclusivamente de los supuestos que ingreses y no garantizan resultados futuros. Toda inversión implica riesgos, incluida la pérdida del capital. El modelo no incluye impuestos, comisiones ni inflación. Herramienta creada por Revolución Financiera.</p>
+        <p>Este simulador es una herramienta educativa y de carácter informativo. No constituye una recomendación de inversión ni asesoramiento financiero personalizado. Los resultados dependen exclusivamente de los supuestos que ingreses y no garantizan resultados futuros. Toda inversión implica riesgos, incluida la pérdida del capital. El modelo no incluye impuestos ni comisiones. Herramienta creada por Revolución Financiera.</p>
     </div>
 
 </main>
@@ -691,7 +708,8 @@
 /* ---------- Configuración ---------- */
 const ORIGEN = "calculadora-inversion";
 const ESC = { fci: 5.5, on: 7, sp: 8.8, sp15: 14.1 };
-const DEF = { m: "proy", ci: 1000, am: 200, meta: 100000, y: 20, ex: 500, au: 3, esc: "on", t: 10, w: 5 };
+const DEF = { m: "proy", ci: 1000, am: 200, meta: 100000, y: 20, ex: 500, au: 3, esc: "on", t: 10, w: 5, age: "", val: "nom" };
+const INFL = 2.5; // inflación anual en dólares para "dólares de hoy"
 
 /* ---------- Núcleo de cálculo (sin DOM) ---------- */
 // Simula mes a mes. delay = años sin invertir al principio (el capital inicial queda quieto).
@@ -722,6 +740,15 @@ function requiredMonthly(p, delay) {
   const pend = one - base;
   return { am: (p.meta - base) / pend, base: base };
 }
+// Pasa una simulación a dólares de hoy, descontando la inflación en dólares año a año.
+function toReal(s) {
+  const d = (y) => Math.pow(1 + INFL / 100, y);
+  const tot = s.tot.map((v, y) => v / d(y));
+  const yr = s.yr.map((v, y) => v / d(y));
+  const apo = [s.apo[0]];
+  for (let y = 1; y < yr.length; y++) apo.push(apo[y - 1] + yr[y]);
+  return { tot: tot, apo: apo, yr: yr };
+}
 // Primer año en que los intereses del año superan lo que aportaste ese año.
 function snowballYear(s) {
   for (let y = 1; y < s.tot.length; y++) {
@@ -739,17 +766,40 @@ const pf = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 });
 const money = (x) => "US$ " + nf.format(Math.round(x));
 const pct = (x) => pf.format(x) + "%";
 const anios = (n) => n + (n === 1 ? " año" : " años");
-function num(id) { const v = parseFloat($(id).value); return isFinite(v) ? v : NaN; }
+const MONEY = ["ci", "am", "meta", "ex"];
+function num(id) {
+  const raw = MONEY.indexOf(id) >= 0 ? $(id).value.replace(/\D/g, "") : $(id).value;
+  if (raw === "") return NaN;
+  const v = parseFloat(raw); return isFinite(v) ? v : NaN;
+}
+// Formatea con puntos de miles mientras se escribe, manteniendo el cursor en su lugar
+function fmtMoney(el) {
+  const pos = el.selectionStart == null ? el.value.length : el.selectionStart;
+  const digitsBefore = el.value.slice(0, pos).replace(/\D/g, "").length;
+  const d = el.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "").slice(0, 12);
+  el.value = d ? nf.format(+d) : "";
+  let i = 0, seen = 0;
+  while (i < el.value.length && seen < digitsBefore) { if (/\d/.test(el.value[i])) seen++; i++; }
+  if (document.activeElement === el) el.setSelectionRange(i, i);
+}
 function mode() { return document.querySelector("input[name=mode]:checked").value; }
 function esc() { return document.querySelector("input[name=esc]:checked").value; }
 function rate() { return esc() === "custom" ? num("t") : ESC[esc()]; }
+function isReal() { return document.querySelector("input[name=val]:checked").value === "real"; }
+function age() { if ($("age").value === "") return null; const a = Math.round(num("age")); return a >= 0 && a <= 100 ? a : null; }
+// "a los 45 años" o "en 20 años"
+function when(y) { const a = age(); return a !== null ? "a los " + (a + y) + " años" : "en " + anios(y); }
+function yearName(y) { const a = age(); return a !== null ? (y === 0 ? "Hoy (" + a + " años)" : "A los " + (a + y) + " años") : (y === 0 ? "Hoy" : "Año " + y); }
+function cap(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
 function track(accion) { try { gtag("event", "click_herramienta", { accion: accion, origen: ORIGEN }); } catch (e) {} }
 
 /* Carga inicial: valores por defecto o los que vienen en el link */
 function load() {
   const q = new URLSearchParams(location.search);
   const get = (k) => { const v = q.get(k); return v === null || v === "" ? DEF[k] : v; };
-  ["ci", "am", "meta", "y", "ex", "au", "t"].forEach((k) => { $(k).value = get(k); });
+  ["ci", "am", "meta", "y", "ex", "au", "t", "age"].forEach((k) => { $(k).value = get(k); });
+  MONEY.forEach((k) => fmtMoney($(k)));
+  document.querySelector('input[name=val][value="' + (get("val") === "real" ? "real" : "nom") + '"]').checked = true;
   const m = get("m") === "meta" ? "meta" : "proy";
   document.querySelector('input[name=mode][value="' + m + '"]').checked = true;
   const e = ["fci", "on", "sp", "sp15", "custom"].indexOf(get("esc")) >= 0 ? get("esc") : DEF.esc;
@@ -765,10 +815,12 @@ function params() {
 function shareUrl() {
   const q = new URLSearchParams();
   q.set("m", mode());
-  ["ci", mode() === "meta" ? "meta" : "am", "y", "ex", "au"].forEach((k) => q.set(k, $(k).value));
+  ["ci", mode() === "meta" ? "meta" : "am", "y", "ex", "au"].forEach((k) => q.set(k, MONEY.indexOf(k) >= 0 ? $(k).value.replace(/\D/g, "") : $(k).value));
   q.set("esc", esc());
   if (esc() === "custom") q.set("t", $("t").value);
   q.set("w", $("w").value);
+  if (age() !== null) q.set("age", age());
+  if (isReal()) q.set("val", "real");
   return location.origin + location.pathname + "?" + q.toString();
 }
 
@@ -783,9 +835,11 @@ function render() {
   $("customR").textContent = esc() === "custom" && isFinite(tc) ? pf.format(tc) + "%" : "—";
 
   const p = params();
-  $("e-ci").textContent = p.ci > 0 ? money(p.ci) : "";
-  $("e-am").textContent = p.am > 0 ? money(p.am) + " por mes · " + money(p.am * 12) + " por año" : "";
-  $("e-meta").textContent = p.meta > 0 ? money(p.meta) : "";
+  $("e-ci").textContent = "";
+  $("e-am").textContent = p.am > 0 ? money(p.am * 12) + " por año" : "";
+  $("e-meta").textContent = p.meta > 0 && isReal() ? "En dólares de hoy" : "";
+  const ag = age();
+  $("e-age").textContent = ag !== null && p.y >= 1 ? "Terminarías a los " + (ag + p.y) + " años" : "Para ver los resultados según tu edad";
   $("e-au").textContent = p.au > 0 ? "Si hoy aportás US$ 100, el año que viene aportás " + money(100 * (1 + p.au / 100)) : "Tus aportes quedan fijos todos los años";
 
   const out = $("result");
@@ -797,6 +851,11 @@ function render() {
   if (!(p.y >= 1 && p.y <= 50)) return err("Ingresá un plazo entre 1 y 50 años.");
   if (!isFinite(p.r) || p.r <= -100 || p.r > 100) return err("Ingresá una tasa de rendimiento válida.");
   if (!(p.au >= 0 && p.au <= 50)) return err("El aumento anual tiene que estar entre 0% y 50%.");
+  if ($("age").value !== "" && age() === null) return err("Ingresá una edad entre 0 y 100, o dejala vacía.");
+  const real = isReal();
+  const pm = Object.assign({}, p, { meta: real ? p.meta * Math.pow(1 + INFL / 100, p.y) : p.meta }); // meta en valores futuros
+  const view = (x) => real ? toReal(x) : x;
+  const deHoy = real ? " de hoy" : "";
 
   // Espera: como máximo, el plazo menos un año
   const wMax = Math.max(1, Math.min(10, p.y - 1));
@@ -810,25 +869,26 @@ function render() {
 
   if (m === "meta") {
     if (!(p.meta > 0)) return err("Ingresá una meta mayor a 0.");
-    const req = requiredMonthly(p, 0);
+    const req = requiredMonthly(pm, 0);
     const need = Math.max(0, req.am);
-    p.am = need;
-    s = simulate(p, 0);
+    p.am = need; pm.am = need;
+    s = view(simulate(p, 0));
     if (req.am <= 0) {
-      html += '<p class="result-label">Para llegar a ' + money(p.meta) + " en " + anios(p.y) + "</p>";
+      html += '<p class="result-label">Para llegar a ' + money(p.meta) + deHoy + " " + when(p.y) + "</p>";
       html += '<div class="big">US$ 0 por mes</div>';
-      html += '<p class="hint" style="margin:-8px 0 16px">Con tu capital inicial y tus aportes extraordinarios ya llegás a la meta: terminarías con ' + money(req.base) + ".</p>";
+      html += '<p class="hint" style="margin:-8px 0 16px">Con tu capital inicial y tus aportes extraordinarios ya llegás a la meta: terminarías con ' + money(s.tot[p.y]) + deHoy + ".</p>";
     } else {
-      html += '<p class="result-label">Para llegar a ' + money(p.meta) + " en " + anios(p.y) + ", tenés que invertir</p>";
+      html += '<p class="result-label">Para llegar a ' + money(p.meta) + deHoy + " " + when(p.y) + ", tenés que invertir</p>";
       html += '<div class="big">' + money(need) + " por mes</div>";
       if (p.au > 0) html += '<p class="hint" style="margin:-8px 0 16px">Arrancando con ese monto y subiéndolo ' + pct(p.au) + " cada año. El último año estarías aportando " + money(need * Math.pow(1 + p.au / 100, p.y - 1)) + " por mes.</p>";
     }
   } else {
-    s = simulate(p, 0);
-    html += '<p class="result-label">En ' + anios(p.y) + " vas a tener</p>";
+    s = view(simulate(p, 0));
+    html += '<p class="result-label">' + cap(when(p.y)) + " vas a tener" + (real ? " (en dólares de hoy)" : "") + "</p>";
     html += '<div class="big">' + money(s.tot[p.y]) + "</div>";
   }
 
+  if (real) html += '<p class="real-note">💵 En dólares de hoy: descontamos ' + pct(INFL) + " anual de inflación en dólares, para que veas qué podrías comprar con esa plata hoy.</p>";
   const F = s.tot[p.y], A = s.apo[p.y], I = F - A;
   const fa = F > 0 ? Math.max(0, Math.min(100, A / F * 100)) : 100;
   const snow = snowballYear(s);
@@ -841,7 +901,7 @@ function render() {
     row("Capital final", money(F)) +
     row("Rendimiento anual supuesto", pct(p.r)) + "</dl>";
   let snowTxt;
-  if (snow) snowTxt = "❄️ <b>Efecto bola de nieve:</b> a partir del <b>año " + snow + "</b>, tus intereses de cada año superan lo que aportás en ese año. La plata empieza a trabajar más que vos.";
+  if (snow) snowTxt = "❄️ <b>Efecto bola de nieve:</b> a partir del <b>" + (age() !== null ? "año " + snow + " (a los " + (age() + snow) + ")" : "año " + snow) + "</b>, tus intereses de cada año superan lo que aportás en ese año. La plata empieza a trabajar más que vos.";
   else if (p.r > 0) snowTxt = "❄️ <b>Efecto bola de nieve:</b> en este plazo, los intereses de cada año todavía no superan tus aportes. Con más años o más rendimiento, llega ese punto.";
   else snowTxt = "Con un rendimiento de " + pct(p.r) + " no hay interés compuesto a tu favor.";
 
@@ -851,18 +911,18 @@ function render() {
   /* Costo de esperar */
   if (p.y >= 2) {
     if (m === "meta") {
-      const rw = requiredMonthly(p, w);
+      const rw = requiredMonthly(pm, w);
       const needW = Math.max(0, rw.am);
-      sw = simulate(Object.assign({}, p, { am: needW }), w);
+      sw = view(simulate(Object.assign({}, p, { am: needW }), w));
       const diff = needW - p.am;
       $("waitOut").innerHTML = '<div class="wait-out">Si empezás dentro de ' + anios(w) + ", para llegar a la misma meta vas a tener que invertir" +
         '<span class="big2">' + money(needW) + " por mes</span>" +
         (diff > 0.5 ? "Son <b>" + money(diff) + " más por mes</b> (" + pct(Math.round(diff / Math.max(p.am, 1e-9) * 100)) + " más) que si arrancás hoy." : "Casi lo mismo que si arrancás hoy.") + "</div>";
     } else {
-      sw = simulate(p, w);
+      sw = view(simulate(p, w));
       const Fw = sw.tot[p.y], lost = F - Fw;
       const apoLess = A - sw.apo[p.y];
-      $("waitOut").innerHTML = '<div class="wait-out">Si empezás dentro de ' + anios(w) + ", en el mismo plazo terminás con " + money(Fw) + ". Esperar te cuesta" +
+      $("waitOut").innerHTML = '<div class="wait-out">Si empezás dentro de ' + anios(w) + ", " + (age() !== null ? "a los " + (age() + p.y) + " años" : "en el mismo plazo") + " terminás con " + money(Fw) + ". Esperar te cuesta" +
         '<span class="big2">' + money(lost) + "</span>" +
         "De esa diferencia, solo " + money(apoLess) + " son aportes que no hiciste. El resto (" + money(lost - apoLess) + ") es interés compuesto que dejaste de ganar.</div>";
     }
@@ -872,9 +932,9 @@ function render() {
 
   /* Puente a Vivir de Rentas */
   $("bridge").hidden = false;
-  $("bridgeTxt").innerHTML = "Con " + money(F) + " podrías retirar cerca de <b>" + money(F * 0.04 / 12) + " por mes</b> para vivir de rentas.";
+  $("bridgeTxt").innerHTML = (age() !== null ? "A los " + (age() + p.y) + " años, con " : "Con ") + money(F) + " podrías retirar cerca de <b>" + money(F * 0.04 / 12) + " por mes</b> para vivir de rentas" + (real ? " (en dólares de hoy)" : "") + ".";
 
-  state = { p: p, s: s, sw: sw, w: w, m: m, snow: snow };
+  state = { p: p, s: s, sw: sw, w: w, m: m, snow: snow, real: real, age: age() };
   drawChart();
   drawTable();
 }
@@ -914,9 +974,9 @@ function drawChart() {
     g += '<text x="' + (pad.l - 8) + '" y="' + (yy + 4) + '" text-anchor="end" fill="' + COL.ink + '" font-size="' + fs + '" font-family="' + FONT + '">US$ ' + nfc.format(v) + "</text>";
   }
   for (let t = 0; t <= H; t += step) {
-    g += '<text x="' + x(t) + '" y="' + (Ht - 28) + '" text-anchor="middle" fill="' + COL.ink + '" font-size="' + fs + '" font-family="' + FONT + '">' + t + "</text>";
+    g += '<text x="' + x(t) + '" y="' + (Ht - 28) + '" text-anchor="middle" fill="' + COL.ink + '" font-size="' + fs + '" font-family="' + FONT + '">' + (state.age !== null ? state.age + t : t) + "</text>";
   }
-  g += '<text x="' + ((pad.l + Wd - pad.r) / 2) + '" y="' + (Ht - 6) + '" text-anchor="middle" fill="' + COL.ink2 + '" font-size="' + fs + '" font-family="' + FONT + '">años</text>';
+  g += '<text x="' + ((pad.l + Wd - pad.r) / 2) + '" y="' + (Ht - 6) + '" text-anchor="middle" fill="' + COL.ink2 + '" font-size="' + fs + '" font-family="' + FONT + '">' + (state.age !== null ? "tu edad" : "años") + (state.real ? " · montos en dólares de hoy" : "") + '</text>';
 
   const area = path(s.tot) + " L" + x(H).toFixed(1) + " " + y(0).toFixed(1) + " L" + x(0).toFixed(1) + " " + y(0).toFixed(1) + " Z";
   let lines = '<path d="' + area + '" fill="' + COL.tot + '" fill-opacity="0.07"/>';
@@ -926,7 +986,9 @@ function drawChart() {
   if (state.snow) {
     const sx = x(state.snow), sy = y(s.tot[state.snow]);
     lines += '<circle cx="' + sx + '" cy="' + sy + '" r="5" fill="' + COL.tot + '" stroke="#fff" stroke-width="2"/>';
-    lines += '<text x="' + sx + '" y="' + (sy - 12) + '" text-anchor="' + (state.snow > H * 0.8 ? "end" : "middle") + '" fill="' + COL.ink2 + '" font-size="' + fs + '" font-weight="600" font-family="' + FONT + '">❄️ bola de nieve</text>';
+    const sfs = fs + 4;
+    const left = sx - pad.l > 190; // arriba a la izquierda del punto (zona libre sobre la curva); si no hay lugar, abajo a la derecha
+    lines += '<text x="' + (left ? sx - 10 : sx + 12) + '" y="' + (left ? sy - 14 : sy + 26) + '" text-anchor="' + (left ? "end" : "start") + '" fill="' + COL.ink2 + '" font-size="' + sfs + '" font-weight="700" font-family="' + FONT + '"><tspan font-size="' + (sfs + 8) + '">❄️</tspan> bola de nieve</text>';
   }
   // Etiqueta directa del valor final
   const fx = x(H), fy = y(s.tot[H]);
@@ -967,7 +1029,7 @@ function showTip(i) {
   if (sw) { $("c3").setAttribute("cx", X); $("c3").setAttribute("cy", geo.y(sw.tot[i])); }
   const tr = (c, k, v) => '<div class="tr"><span><i style="background:' + c + '"></i>' + k + "</span><b>" + money(v) + "</b></div>";
   const tip = $("tip");
-  tip.innerHTML = '<div class="ty">' + (i === 0 ? "Hoy" : "Año " + i) + "</div>" +
+  tip.innerHTML = '<div class="ty">' + yearName(i) + "</div>" +
     tr(COL.tot, "Capital", s.tot[i]) + tr(COL.apo, "Aportado", s.apo[i]) +
     '<div class="tr"><span><i style="background:transparent"></i>Intereses</span><b>' + money(s.tot[i] - s.apo[i]) + "</b></div>" +
     (sw ? tr(COL.wait, "Si esperás", sw.tot[i]) : "");
@@ -990,10 +1052,10 @@ function rows() {
   return out;
 }
 function drawTable() {
-  let h = '<table class="yy"><thead><tr><th>Año</th><th>Aportes del año</th><th>Total aportado</th><th>Intereses del año</th><th>Intereses acumulados</th><th>Capital total</th></tr></thead><tbody>';
-  h += "<tr><td>Hoy</td><td>" + money(state.p.ci) + "</td><td>" + money(state.p.ci) + "</td><td>–</td><td>–</td><td class='tot'>" + money(state.p.ci) + "</td></tr>";
+  let h = '<table class="yy"><thead><tr><th>' + (state.age !== null ? "Edad" : "Año") + '</th><th>Aportes del año</th><th>Total aportado</th><th>Intereses del año</th><th>Intereses acumulados</th><th>Capital total</th></tr></thead><tbody>';
+  h += "<tr><td>" + (state.age !== null ? state.age + " (hoy)" : "Hoy") + "</td><td>" + money(state.p.ci) + "</td><td>" + money(state.p.ci) + "</td><td>–</td><td>–</td><td class='tot'>" + money(state.p.ci) + "</td></tr>";
   rows().forEach((r) => {
-    h += "<tr" + (r.y === state.snow ? ' class="snowrow" title="Efecto bola de nieve"' : "") + "><td>" + r.y + (r.y === state.snow ? " ❄️" : "") + "</td><td>" + money(r.apY) + "</td><td>" + money(r.ap) + "</td><td>" + money(r.inY) + "</td><td>" + money(r.inAcc) + "</td><td class='tot'>" + money(r.tot) + "</td></tr>";
+    h += "<tr" + (r.y === state.snow ? ' class="snowrow" title="Efecto bola de nieve"' : "") + "><td>" + (state.age !== null ? state.age + r.y : r.y) + (r.y === state.snow ? " ❄️" : "") + "</td><td>" + money(r.apY) + "</td><td>" + money(r.ap) + "</td><td>" + money(r.inY) + "</td><td>" + money(r.inAcc) + "</td><td class='tot'>" + money(r.tot) + "</td></tr>";
   });
   $("tbl").innerHTML = h + "</tbody></table>";
 }
@@ -1022,8 +1084,8 @@ $("bShare").addEventListener("click", () => {
   if (!state) return;
   const url = shareUrl();
   const txt = state.m === "meta"
-    ? "Para llegar a " + money(state.p.meta) + " en " + anios(state.p.y) + " tengo que invertir " + money(state.p.am) + " por mes. Calculalo vos:"
-    : "Invirtiendo " + money(state.p.am) + " por mes, en " + anios(state.p.y) + " tendría " + money(state.s.tot[state.p.y]) + ". Calculalo vos:";
+    ? "Para llegar a " + money(state.p.meta) + (state.real ? " de hoy " : " ") + when(state.p.y) + " tengo que invertir " + money(state.p.am) + " por mes. Calculalo vos:"
+    : "Invirtiendo " + money(state.p.am) + " por mes, " + when(state.p.y) + " tendría " + money(state.s.tot[state.p.y]) + (state.real ? " en dólares de hoy" : "") + ". Calculalo vos:";
   track("compartir_link");
   if (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
     navigator.share({ title: "Calculadora de Inversión | Revolución Financiera", text: txt, url: url }).catch(() => {});
@@ -1044,11 +1106,12 @@ $("bCsv").addEventListener("click", () => {
     "Aumento anual de aportes (%);" + String(state.p.au).replace(".", ","),
     "Rendimiento anual (%);" + String(state.p.r).replace(".", ","),
     "Plazo (años);" + state.p.y,
+    "Montos;" + (state.real ? "En dólares de hoy (inflación USD " + String(INFL).replace(".", ",") + "% anual)" : "Valores futuros (nominales)"),
     "",
-    "Año;Aportes del año (US$);Total aportado (US$);Intereses del año (US$);Intereses acumulados (US$);Capital total (US$)",
-    "0;" + n(state.p.ci) + ";" + n(state.p.ci) + ";0;0;" + n(state.p.ci)
+    (state.age !== null ? "Edad;" : "") + "Año;Aportes del año (US$);Total aportado (US$);Intereses del año (US$);Intereses acumulados (US$);Capital total (US$)",
+    (state.age !== null ? state.age + ";" : "") + "0;" + n(state.p.ci) + ";" + n(state.p.ci) + ";0;0;" + n(state.p.ci)
   ];
-  rows().forEach((r) => lines.push([r.y, n(r.apY), n(r.ap), n(r.inY), n(r.inAcc), n(r.tot)].join(";")));
+  rows().forEach((r) => lines.push((state.age !== null ? [state.age + r.y] : []).concat([r.y, n(r.apY), n(r.ap), n(r.inY), n(r.inAcc), n(r.tot)]).join(";")));
   lines.push("", "Herramienta educativa. No es recomendación de inversión. rfinanciera.github.io");
   download(new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" }), "calculadora-inversion-revolucion-financiera.csv");
   toast("📥 Tabla descargada");
@@ -1072,7 +1135,7 @@ $("bPng").addEventListener("click", () => {
     ctx.fillStyle = "#1A1D23"; ctx.font = "700 20px 'DM Sans', sans-serif";
     const title = state.m === "meta"
       ? "Meta: " + money(state.p.meta) + " en " + anios(state.p.y) + " → " + money(state.p.am) + " por mes"
-      : "En " + anios(state.p.y) + ": " + money(state.s.tot[state.p.y]);
+      : cap(when(state.p.y)) + ": " + money(state.s.tot[state.p.y]) + (state.real ? " (dólares de hoy)" : "");
     ctx.fillText(title, 24, 40);
     ctx.fillStyle = "#5A6270"; ctx.font = "14px 'DM Sans', sans-serif";
     ctx.fillText("Capital inicial " + money(state.p.ci) + " · Aporte " + money(state.p.am) + "/mes · Extra " + money(state.p.ex) + "/año · Rinde " + pct(state.p.r) + " anual", 24, 66);
@@ -1096,11 +1159,12 @@ $("bPng").addEventListener("click", () => {
 });
 
 /* ---------- Eventos ---------- */
-document.querySelectorAll("input[name=mode], input[name=esc]").forEach((el) => el.addEventListener("change", () => {
+document.querySelectorAll("input[name=mode], input[name=esc], input[name=val]").forEach((el) => el.addEventListener("change", () => {
   if (el.name === "esc" && el.value === "custom") setTimeout(() => $("t").focus(), 0);
   render();
 }));
-["ci", "am", "meta", "y", "ex", "au", "t", "w"].forEach((id) => $(id).addEventListener("input", render));
+MONEY.forEach((id) => $(id).addEventListener("input", () => fmtMoney($(id))));
+["ci", "am", "meta", "y", "ex", "au", "t", "w", "age"].forEach((id) => $(id).addEventListener("input", render));
 $("tblDetails").addEventListener("toggle", () => { if ($("tblDetails").open) track("ver_tabla"); });
 let rt = null;
 window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawChart, 120); });
